@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ^9.15.0
         version: 9.39.4
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.19.19
       '@types/pg':
         specifier: ^8.11.10
         version: 8.20.0
