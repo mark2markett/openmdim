@@ -59,10 +59,19 @@ _The one work unit currently being built. Should match NEXT WORK UNIT once start
   - CI (GitHub Actions run 26921044442): install→typecheck→lint→test all green against the
     CI Postgres service. WU-0.7 satisfied.
 
+  **CODEX review (PR #1):** first pass 8/11 PASS + 3 FAIL (WU-0.3 import-boundary leak,
+  WU-0.9 env.example not names-only, WU-0.11 missing BUILD-GOVERNANCE ref) + 1 P2.
+  Builder fixed all; CODEX re-review confirmed WU-0.3/0.11/P2 PASS. WU-0.9: CODEX flagged
+  throwaway dev/CI container passwords as "credentials in diff"; Approver arbitrated
+  (2026-06-03) that these are non-secret local/CI defaults and the names-only criterion is
+  met → WU-0.9 PASS. Net: all 11 criteria PASS. CI green on HEAD.
+
   **Remaining to close WU-0 (NOT done until all hold — BUILD-GOVERNANCE §7):**
-  - CODEX all-PASS verdict on PR #1.
-  - Human approval + authorization of WU-1.
-  - Human-run (credentials): Vercel link/deploy of `apps/web`; Supabase project create/link.
+  - Human formal approval + merge of PR #1, and authorization of WU-1.
+  - U.2/U.3 coverage gate: confirmed N/A for infra-only WU-0 (no feature/data-model code);
+    begins to bind in WU-1.
+  - Human-run (credentials), deferred until first deploy: Vercel link/deploy of `apps/web`;
+    Supabase project create/link.
 
 ---
 
