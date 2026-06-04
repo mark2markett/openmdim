@@ -1,0 +1,14 @@
+// OpenMDIM Prisma schema — the SOURCE OF TRUTH for the data model (CLAUDE.md §6).
+// WU-0: datasource + generator only. NO models — the data model arrives in WU-1.
+// Prisma reads DATABASE_URL (pooled, runtime) and DIRECT_URL (direct, migrations).
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}

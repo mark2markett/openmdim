@@ -1,0 +1,63 @@
+# Local development services for OpenMDIM (WU-0).
+# Dev credentials only — these are throwaway local defaults, never used in prod.
+# Bring up: `docker compose up -d`  ·  Status: `docker compose ps`
+#
+# Host ports are intentionally NON-DEFAULT (5433/6380/9100-9101) so the stack does
+# not collide with other Postgres/Redis instances on a shared dev machine. Container
+# ports stay standard. Point .env at the host ports (see .env.example).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: openmdim-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openmdim
+      POSTGRES_PASSWORD: openmdim
+      POSTGRES_DB: openmdim
+    ports:
+      - '5433:5432'
+    volumes:
+      - openmdim-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U openmdim -d openmdim']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: openmdim-redis
+    restart: unless-stopped
+    ports:
+      - '6380:6379'
+    volumes:
+      - openmdim-redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: openmdim-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: openmdim
+      MINIO_ROOT_PASSWORD: openmdim123
+    ports:
+      - '9100:9000'
+      - '9101:9001'
+    volumes:
+      - openmdim-miniodata:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  openmdim-pgdata:
+  openmdim-redisdata:
+  openmdim-miniodata:
