@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+apps/web/dist/
+.next/
+
+# Prisma generated client
+packages/db/generated/
+
+# Test / coverage
+coverage/
+
+# Environment & secrets (NEVER commit real values)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Vercel / Supabase local
+.vercel/
+supabase/.branches/
+supabase/.temp/

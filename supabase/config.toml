@@ -1,0 +1,16 @@
+# Supabase project config for OpenMDIM (deployed-environment Postgres).
+# Local dev uses docker-compose Postgres; Supabase is the managed DB for staging/prod.
+# `project_id` is set by `supabase link` (the project ref). Placeholder until you link.
+project_id = "openmdim"
+
+[db]
+# Major version of the managed Postgres (matches local docker: PostgreSQL 16).
+major_version = 16
+
+[api]
+enabled = true
+
+# NOTE: this is a minimal, hand-authored config sufficient for `supabase link` and
+# pulling connection strings. Run `supabase init` if you want the full CLI-generated
+# config (auth/storage/realtime sections, etc.). Connection strings/keys are never
+# stored here — they live in .env (gitignored). See .env.example for required names.
