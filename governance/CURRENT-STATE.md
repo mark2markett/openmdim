@@ -54,9 +54,15 @@ _The one work unit currently being built. Should match NEXT WORK UNIT once start
   - Vercel: `vercel link` / deploy of `apps/web` (vercel.json present).
   - Supabase: `supabase login`/`init`/`link` + pull connection strings (supabase/config.toml present).
 
-  **In flight:**
-  - GitHub: repo + branch `wu-0-scaffold-and-ci` + PR being created under `mark2markett`;
-    real CI run on the PR satisfies WU-0.7.
+  **Pushed + CI green:**
+  - GitHub: github.com/mark2markett/openmdim · branch `wu-0-scaffold-and-ci` · **PR #1**.
+  - CI (GitHub Actions run 26921044442): install→typecheck→lint→test all green against the
+    CI Postgres service. WU-0.7 satisfied.
+
+  **Remaining to close WU-0 (NOT done until all hold — BUILD-GOVERNANCE §7):**
+  - CODEX all-PASS verdict on PR #1.
+  - Human approval + authorization of WU-1.
+  - Human-run (credentials): Vercel link/deploy of `apps/web`; Supabase project create/link.
 
 ---
 
