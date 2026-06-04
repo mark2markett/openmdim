@@ -25,20 +25,39 @@ export default tseslint.config(
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
     rules: {
-      // Import-boundary stub: forbid deep cross-package imports.
+      // Import-boundary stub: forbid deep cross-package access. A package must be
+      // imported via its public entry ("@openmdim/<pkg>"), never an internal path.
+      // Covers BOTH the workspace-alias form and relative paths that reach into
+      // another package's internals. Tightened into per-context zones in WU-1+.
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              group: ['@openmdim/*/src/*', '@openmdim/*/dist/*', '@openmdim/*/generated/*'],
+              // Workspace alias: exact internal dir AND any deeper path.
+              group: [
+                '@openmdim/*/src',
+                '@openmdim/*/src/**',
+                '@openmdim/*/dist',
+                '@openmdim/*/dist/**',
+                '@openmdim/*/generated',
+                '@openmdim/*/generated/**'
+              ],
               message:
-                'Import a package via its public entry (e.g. "@openmdim/domain"), never a deep path. import-boundary stub — see CLAUDE.md §6.'
+                'Import a package via its public entry (e.g. "@openmdim/domain"), never an internal path (src/dist/generated). import-boundary stub — see CLAUDE.md §6.'
             },
             {
-              group: ['**/../*/src/**', '../../*/src/**'],
+              // Relative paths that reach into another package's/app's internals,
+              // e.g. "../../packages/domain/src/x" or "../../../apps/api/src/y".
+              group: [
+                '**/packages/*/src',
+                '**/packages/*/src/**',
+                '**/packages/*/dist/**',
+                '**/apps/*/src',
+                '**/apps/*/src/**'
+              ],
               message:
-                'No cross-package deep relative imports — use the package public API. import-boundary stub.'
+                'No cross-package deep relative imports — use the package public API. import-boundary stub — see CLAUDE.md §6.'
             }
           ]
         }

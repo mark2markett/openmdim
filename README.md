@@ -49,7 +49,13 @@ docker compose up -d
 docker compose ps      # all three should be "healthy"
 
 # 3. Configure env
-cp .env.example .env   # fill in local values (examples are inline in .env.example)
+cp .env.example .env
+# Local-dev values (match docker-compose host ports):
+#   DATABASE_URL=postgresql://openmdim:openmdim@localhost:5433/openmdim?schema=public
+#   DIRECT_URL=postgresql://openmdim:openmdim@localhost:5433/openmdim?schema=public
+#   REDIS_URL=redis://localhost:6380
+#   MINIO_ENDPOINT=http://localhost:9100
+#   API_PORT=3000
 
 # 4. Run the API (boots on :3000)
 pnpm --filter @openmdim/api start

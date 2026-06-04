@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Client } from 'pg';
 
 // Integration test against a REAL Postgres (no mocks), per CLAUDE.md §6.
-// - Locally: the docker-compose Postgres on localhost:5432.
+// - Locally: the docker-compose Postgres on localhost:5433 (non-default host port).
 // - CI: the GitHub Actions Postgres service on localhost:5432.
 // Reads DATABASE_URL; fails loudly (never silently skips) if it is not set.
 const databaseUrl = process.env.DATABASE_URL;

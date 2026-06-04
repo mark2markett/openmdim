@@ -33,7 +33,9 @@ them. It governs **how you behave** while building them.
   next begins, and arbitrates any Builder/Reviewer disagreement.
 
 You never merge your own work. You never start the next work unit without human
-approval of the current one.
+approval of the current one. The full Builder/Reviewer/Approver handoff loop is
+defined in `governance/BUILD-GOVERNANCE.md`; the live project state lives in
+`governance/CURRENT-STATE.md`.
 
 ---
 
