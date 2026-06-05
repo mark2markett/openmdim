@@ -5,7 +5,4 @@ export class ContractRepository {
   findById(id: string) {
     return this.prisma.contract.findUnique({ where: { id } });
   }
-  listActiveByVendor(vendorId: string) {
-    return this.prisma.contract.findMany({ where: { vendorId, isActive: true } });
-  }
 }

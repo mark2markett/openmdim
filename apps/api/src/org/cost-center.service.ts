@@ -16,9 +16,6 @@ export class CostCenterService {
   findById(id: string) {
     return this.repo.findById(id);
   }
-  listActive() {
-    return this.repo.listActive();
-  }
   create(input: CreateCostCenterInput) {
     return withAudit(
       this.prisma,

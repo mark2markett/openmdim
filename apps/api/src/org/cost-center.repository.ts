@@ -5,7 +5,4 @@ export class CostCenterRepository {
   findById(id: string) {
     return this.prisma.costCenter.findUnique({ where: { id } });
   }
-  listActive() {
-    return this.prisma.costCenter.findMany({ where: { isActive: true } });
-  }
 }

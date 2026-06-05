@@ -5,7 +5,4 @@ export class SubscriptionRepository {
   findById(id: string) {
     return this.prisma.subscription.findUnique({ where: { id } });
   }
-  countActiveAssignments(subscriptionId: string) {
-    return this.prisma.assignment.count({ where: { subscriptionId, isActive: true } });
-  }
 }

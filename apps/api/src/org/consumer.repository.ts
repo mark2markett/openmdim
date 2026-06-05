@@ -5,7 +5,4 @@ export class ConsumerRepository {
   findById(id: string) {
     return this.prisma.consumer.findUnique({ where: { id } });
   }
-  listActiveByCostCenter(costCenterId: string) {
-    return this.prisma.consumer.findMany({ where: { costCenterId, isActive: true } });
-  }
 }

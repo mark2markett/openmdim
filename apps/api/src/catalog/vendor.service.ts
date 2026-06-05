@@ -17,9 +17,6 @@ export class VendorService {
   findById(id: string) {
     return this.repo.findById(id);
   }
-  listActive() {
-    return this.repo.listActive();
-  }
   create(input: CreateVendorInput) {
     return withAudit(
       this.prisma,

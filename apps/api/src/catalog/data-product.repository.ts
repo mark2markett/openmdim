@@ -5,7 +5,4 @@ export class DataProductRepository {
   findById(id: string) {
     return this.prisma.dataProduct.findUnique({ where: { id } });
   }
-  listActiveByVendor(vendorId: string) {
-    return this.prisma.dataProduct.findMany({ where: { vendorId, isActive: true } });
-  }
 }

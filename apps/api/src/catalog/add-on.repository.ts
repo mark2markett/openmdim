@@ -5,7 +5,4 @@ export class AddOnRepository {
   findById(id: string) {
     return this.prisma.addOn.findUnique({ where: { id } });
   }
-  listActiveByDataProduct(dataProductId: string) {
-    return this.prisma.addOn.findMany({ where: { dataProductId, isActive: true } });
-  }
 }

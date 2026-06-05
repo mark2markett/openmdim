@@ -21,6 +21,14 @@ export default defineConfig({
     // sequentially so truncate-between-tests can't clobber a parallel file.
     fileParallelism: false,
     testTimeout: 120000,
-    hookTimeout: 120000
+    hookTimeout: 120000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/main.ts', '**/*.module.ts'],
+      // Thresholds per BUILD-SPEC U.3 (changed-file coverage).
+      thresholds: { lines: 80, branches: 70 }
+    }
   }
 });
