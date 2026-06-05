@@ -58,6 +58,21 @@ export default tseslint.config(
               ],
               message:
                 'No cross-package deep relative imports — use the package public API. import-boundary stub — see CLAUDE.md §6.'
+            },
+            {
+              // Cross-CONTEXT boundary (WU-1.3): a bounded context must reach another
+              // context only via its service, never another context's repository.
+              // Same-context imports use "./x.repository" (no folder name) and are NOT
+              // matched; cross-context imports reference the folder ("../catalog/...").
+              group: [
+                '**/catalog/*.repository',
+                '**/commercial/*.repository',
+                '**/org/*.repository',
+                '**/entitlement/*.repository',
+                '**/costing/*.repository'
+              ],
+              message:
+                "Cross-context access must go through that context's service, never its repository (WU-1.3 / CLAUDE.md §6)."
             }
           ]
         }

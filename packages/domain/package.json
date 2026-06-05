@@ -12,5 +12,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "build": "tsc -p tsconfig.json",
     "test": "echo \"@openmdim/domain: no tests yet (WU-1+)\""
+  },
+  "devDependencies": {
+    "vitest": "^2.1.5"
   }
 }

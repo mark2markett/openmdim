@@ -42,7 +42,32 @@ human approval. Each entry: WU id, one line, date, PR link._
 
 _The one work unit currently being built. Should match NEXT WORK UNIT once started._
 
-- _(none — WU-0 is merged + VERIFIED; WU-1 is BLOCKED pending the spec `.docx`, see NEXT WORK UNIT.)_
+- **WU-1 — Data model** (started 2026-06-04, branch `wu-1-data-model`). Built on a real
+  Postgres; full suite green (31 tests). NOT done — awaiting CI green on the PR, CODEX
+  all-PASS, and human approval.
+
+  **Locally verified (evidence in PR):**
+  - WU-1.1 schema (10 models) + clean migration + empty `migrate diff`.
+  - WU-1.2 Money value object (4-col embedding) + monthly base-currency normalization (7 unit tests).
+  - WU-1.3 per-context modules; cross-context access via services only; lint blocks cross-context
+    repository imports (proven via probe).
+  - WU-1.4 `withAudit` writes row + AuditEvent atomically; forced rollback leaves neither.
+  - WU-1.5 soft-delete only; deactivating a Subscription cascades to its active Assignments in-tx.
+  - WU-1.6 per-consumer / per-cost-center cost + over/under-provisioning, period+currency normalized.
+  - WU-1.7 integration tests on a real Postgres (Testcontainers in CI / compose locally);
+    changed-file coverage lines 85% / branches 96% (>= 80/70).
+  - U.1 typecheck + lint clean.
+
+  Active-uniqueness for (consumer, subscription) is service-enforced (Prisma can't model partial
+  unique indexes; keeps `migrate diff` clean). Contexts are plain TS module folders (no NestJS DI
+  yet — not needed until endpoints in a later WU).
+
+  **CODEX review (PR #4):** first pass NOT-PASS (7 FAIL). Builder fixed: audit every child write
+  (WU-1.4), add-on dedup (WU-1.1), real ISO-4217 validation (WU-1.2), rollup excludes inactive
+  add-ons (WU-1.6), CI coverage gate (WU-1.7/U.3). Re-review: 6/7 PASS. WU-1.2: CODEX flagged the
+  hardcoded currency set as not synced to the latest ISO amendments; Approver arbitrated (2026-06-04)
+  that the Money VO + ISO-4217 validation meets the criterion, with a maintained-reference follow-up
+  (see PROPOSED) → WU-1.2 PASS. Net: all 7 criteria + U.1–U.6 PASS. CI green.
 
 ---
 
@@ -73,6 +98,11 @@ of acted on (no scope creep). The human promotes these into real work units._
   later WUs; not applicable until a schema/API exists).
 - Tighten the import-boundary stub into a real per-context rule set (e.g. `import/no-restricted-paths`
   zones) when bounded contexts land in WU-1+.
+- **Replace the hardcoded ISO-4217 currency set** (`packages/domain/src/money.ts`) with a maintained
+  currency reference — the hardcoded list drifts against ISO amendments. (From WU-1 CODEX review;
+  Approver accepted WU-1.2 as met with this as the follow-up.)
+- Consider DB-level active-uniqueness (partial unique index applied outside the Prisma schema, or a
+  generated key column) if concurrency makes the service-level `(consumer, subscription)` check insufficient.
 
 ---
 

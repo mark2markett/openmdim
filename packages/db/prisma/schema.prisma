@@ -1,6 +1,6 @@
 // OpenMDIM Prisma schema — the SOURCE OF TRUTH for the data model (CLAUDE.md §6).
-// WU-0: datasource + generator only. NO models — the data model arrives in WU-1.
-// Prisma reads DATABASE_URL (pooled, runtime) and DIRECT_URL (direct, migrations).
+// Realizes governance/SYSTEM-DESIGN.md §4-§5. Money is the 4-column embedding;
+// soft-delete only (isActive); AuditEvent written in-transaction with every write.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,4 +11,189 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+enum AddOnKind {
+  FEED
+  OPTION
+}
+
+enum BillingPeriod {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum ConsumerType {
+  USER
+  PROCESS
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DEACTIVATE
+}
+
+model Vendor {
+  id           String        @id @default(cuid())
+  name         String
+  code         String        @unique
+  description  String?
+  website      String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  dataProducts DataProduct[]
+  contracts    Contract[]
+}
+
+model DataProduct {
+  id            String         @id @default(cuid())
+  vendorId      String
+  vendor        Vendor         @relation(fields: [vendorId], references: [id])
+  name          String
+  code          String
+  category      String?
+  description   String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  addOns        AddOn[]
+  subscriptions Subscription[]
+
+  @@unique([vendorId, code])
+}
+
+model AddOn {
+  id               String            @id @default(cuid())
+  dataProductId    String
+  dataProduct      DataProduct       @relation(fields: [dataProductId], references: [id])
+  kind             AddOnKind
+  name             String
+  code             String
+  feeAmount        Decimal           @db.Decimal(18, 4)
+  feeCurrency      String            @db.VarChar(3)
+  feeFxRate        Decimal           @db.Decimal(18, 8)
+  feeFxAsOf        DateTime
+  billingPeriod    BillingPeriod
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assignmentAddOns AssignmentAddOn[]
+
+  @@unique([dataProductId, code])
+}
+
+model Contract {
+  id            String         @id @default(cuid())
+  vendorId      String
+  vendor        Vendor         @relation(fields: [vendorId], references: [id])
+  reference     String
+  startDate     DateTime
+  endDate       DateTime?
+  status        ContractStatus @default(DRAFT)
+  notes         String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+
+  @@unique([vendorId, reference])
+}
+
+model Subscription {
+  id              String        @id @default(cuid())
+  contractId      String
+  contract        Contract      @relation(fields: [contractId], references: [id])
+  dataProductId   String
+  dataProduct     DataProduct   @relation(fields: [dataProductId], references: [id])
+  baseFeeAmount   Decimal       @db.Decimal(18, 4)
+  baseFeeCurrency String        @db.VarChar(3)
+  baseFeeFxRate   Decimal       @db.Decimal(18, 8)
+  baseFeeFxAsOf   DateTime
+  billingPeriod   BillingPeriod
+  contractedSeats Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  assignments     Assignment[]
+}
+
+model CostCenter {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  name      String
+  owner     String?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  consumers Consumer[]
+}
+
+model Consumer {
+  id           String       @id @default(cuid())
+  type         ConsumerType
+  name         String
+  externalRef  String?
+  costCenterId String
+  costCenter   CostCenter   @relation(fields: [costCenterId], references: [id])
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  assignments  Assignment[]
+}
+
+model Assignment {
+  id             String            @id @default(cuid())
+  consumerId     String
+  consumer       Consumer          @relation(fields: [consumerId], references: [id])
+  subscriptionId String
+  subscription   Subscription      @relation(fields: [subscriptionId], references: [id])
+  startsOn       DateTime
+  endsOn         DateTime?
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  addOns         AssignmentAddOn[]
+
+  @@index([consumerId])
+  @@index([subscriptionId])
+}
+
+model AssignmentAddOn {
+  id           String     @id @default(cuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  addOnId      String
+  addOn        AddOn      @relation(fields: [addOnId], references: [id])
+  startsOn     DateTime?
+  endsOn       DateTime?
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([assignmentId])
+}
+
+model AuditEvent {
+  id         String      @id @default(cuid())
+  entityType String
+  entityId   String
+  action     AuditAction
+  actor      String
+  changes    Json
+  occurredAt DateTime    @default(now())
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
 }

@@ -14,8 +14,21 @@ export default defineConfig({
     }
   },
   test: {
-    name: 'api-e2e',
-    include: ['test/**/*.e2e.test.ts'],
-    environment: 'node'
+    name: 'api',
+    include: ['test/**/*.e2e.test.ts', 'test/integration/**/*.it.test.ts'],
+    environment: 'node',
+    // Integration tests share one real Postgres locally (compose) — run files
+    // sequentially so truncate-between-tests can't clobber a parallel file.
+    fileParallelism: false,
+    testTimeout: 120000,
+    hookTimeout: 120000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/main.ts', '**/*.module.ts'],
+      // Thresholds per BUILD-SPEC U.3 (changed-file coverage).
+      thresholds: { lines: 80, branches: 70 }
+    }
   }
 });

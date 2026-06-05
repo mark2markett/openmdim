@@ -1,6 +1,9 @@
-// @openmdim/db — Prisma datasource lives in prisma/schema.prisma.
-// The generated client and repositories arrive in WU-1+. For now this package only
-// declares which env vars Prisma reads, so consumers can document their config.
+// @openmdim/db — Prisma client + generated types. The schema (prisma/schema.prisma)
+// is the source of truth for the data model. Mutations go through services that wrap
+// writes + an AuditEvent in one transaction (see withAudit, added in WU-1 Task 5).
+export * from './client';
+export { withAudit, writeAudit, type AuditMeta } from './audit';
+
 export const PRISMA_ENV = {
   /** Pooled connection used at runtime. */
   url: 'DATABASE_URL',
