@@ -68,11 +68,27 @@ pnpm --filter @openmdim/web dev
 ## Quality gates
 
 ```bash
-pnpm -r typecheck      # tsc --noEmit across all packages
-pnpm lint              # eslint (includes the import-boundary stub)
-pnpm test              # vitest (placeholder smoke test in WU-0)
+pnpm run typecheck     # tsc --noEmit across all packages + root tests
+pnpm lint              # eslint (includes the import-boundary rule)
+pnpm test              # vitest workspace (unit + e2e + integration)
 pnpm format            # prettier --check
 ```
+
+### Running integration tests locally
+
+Integration tests need a real Postgres. In CI they use Testcontainers (native Docker).
+Locally on Windows (Docker lives in WSL), point them at the compose Postgres instead of
+exposing the Docker daemon:
+
+```bash
+docker compose up -d --wait        # from WSL; Postgres on :5433
+export OPENMDIM_TEST_DATABASE_URL="postgresql://openmdim:openmdim@localhost:5433/openmdim?schema=public"
+export DATABASE_URL="$OPENMDIM_TEST_DATABASE_URL"
+pnpm --filter @openmdim/api exec vitest run   # *.it.test.ts run sequentially
+```
+
+When `OPENMDIM_TEST_DATABASE_URL` is unset (CI), the harness spins an ephemeral
+Testcontainers Postgres and runs `prisma migrate deploy` into it.
 
 ## License
 
