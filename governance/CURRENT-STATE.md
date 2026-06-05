@@ -10,18 +10,13 @@ _Last updated: 2026-06-04 · by: Builder (Claude Code)_
 
 ## NEXT WORK UNIT
 
-**WU-1 — Data model (Catalog · Commercial · Org · Entitlement · Audit).**
+**WU-2 — Actuals/Billing (invoices + budget-vs-actual)** (per BUILD-SPEC §5 roadmap).
 
-UNBLOCKED — the governing specs now exist: `governance/SYSTEM-DESIGN.md` (v1.0, data
-model) and `governance/BUILD-SPEC.md` (§5 WU-1, criteria WU-1.1–1.7 + U.1–U.6),
-authored 2026-06-04 via brainstorm. Core decisions: single-tenant (instance-per-client);
-spend & per-seat allocation; per-seat cost = Subscription.baseFee + Σ selected AddOn.fee;
-each Consumer aligned to one CostCenter.
-
-**Pending before build starts:** (1) human review/ratification of SYSTEM-DESIGN.md +
-BUILD-SPEC.md (currently in a docs PR); (2) implementation plan via writing-plans;
-(3) one-line WU-1 confirmation per the session-start checklist. Do not start WU-2 until
-WU-1 is approved.
+Not started. Criteria are defined when the human promotes WU-2 (BUILD-SPEC §5 lists it as
+a proposed roadmap item; exact acceptance criteria authored at promotion). Builds on the
+WU-1 data model (contracts/subscriptions/cost rollup) to reconcile contracted cost vs
+actual invoices. **Do not start until WU-1 is approved (done) and the human authorizes WU-2**
+with a one-line confirmation per the session-start checklist.
 
 ---
 
@@ -35,6 +30,13 @@ human approval. Each entry: WU id, one line, date, PR link._
   (PG16/Redis/MinIO) + vitest workspace (e2e + real-Postgres integration) + GitHub Actions
   CI + import-boundary lint. CODEX-reviewed (all 11 criteria PASS; WU-0.9 by Approver
   arbitration); CI green; human-approved + merged.
+- **WU-1 — Data model** · 2026-06-04 · PR #4 (squashed to `ad9205f`). Prisma schema (10 models:
+  Vendor/DataProduct/AddOn, Contract/Subscription, CostCenter/Consumer, Assignment/AssignmentAddOn,
+  AuditEvent) + migration; Money value object; per-context services (catalog/commercial/org/
+  entitlement) with atomic AuditEvent on every write, soft-delete cascade, and entitlement
+  invariants; per-seat cost rollup + provisioning. 33 tests on a real Postgres (Testcontainers in
+  CI), coverage 84%/95%. CODEX-reviewed (7 FAIL → fixed; WU-1.2 by Approver arbitration); CI green;
+  human-approved + merged.
 
 ---
 
@@ -42,32 +44,7 @@ human approval. Each entry: WU id, one line, date, PR link._
 
 _The one work unit currently being built. Should match NEXT WORK UNIT once started._
 
-- **WU-1 — Data model** (started 2026-06-04, branch `wu-1-data-model`). Built on a real
-  Postgres; full suite green (31 tests). NOT done — awaiting CI green on the PR, CODEX
-  all-PASS, and human approval.
-
-  **Locally verified (evidence in PR):**
-  - WU-1.1 schema (10 models) + clean migration + empty `migrate diff`.
-  - WU-1.2 Money value object (4-col embedding) + monthly base-currency normalization (7 unit tests).
-  - WU-1.3 per-context modules; cross-context access via services only; lint blocks cross-context
-    repository imports (proven via probe).
-  - WU-1.4 `withAudit` writes row + AuditEvent atomically; forced rollback leaves neither.
-  - WU-1.5 soft-delete only; deactivating a Subscription cascades to its active Assignments in-tx.
-  - WU-1.6 per-consumer / per-cost-center cost + over/under-provisioning, period+currency normalized.
-  - WU-1.7 integration tests on a real Postgres (Testcontainers in CI / compose locally);
-    changed-file coverage lines 85% / branches 96% (>= 80/70).
-  - U.1 typecheck + lint clean.
-
-  Active-uniqueness for (consumer, subscription) is service-enforced (Prisma can't model partial
-  unique indexes; keeps `migrate diff` clean). Contexts are plain TS module folders (no NestJS DI
-  yet — not needed until endpoints in a later WU).
-
-  **CODEX review (PR #4):** first pass NOT-PASS (7 FAIL). Builder fixed: audit every child write
-  (WU-1.4), add-on dedup (WU-1.1), real ISO-4217 validation (WU-1.2), rollup excludes inactive
-  add-ons (WU-1.6), CI coverage gate (WU-1.7/U.3). Re-review: 6/7 PASS. WU-1.2: CODEX flagged the
-  hardcoded currency set as not synced to the latest ISO amendments; Approver arbitrated (2026-06-04)
-  that the Money VO + ISO-4217 validation meets the criterion, with a maintained-reference follow-up
-  (see PROPOSED) → WU-1.2 PASS. Net: all 7 criteria + U.1–U.6 PASS. CI green.
+- _(none — WU-1 is merged + VERIFIED. WU-2 not yet started/authorized.)_
 
 ---
 
