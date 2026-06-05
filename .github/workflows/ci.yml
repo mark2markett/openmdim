@@ -63,6 +63,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # The generated Prisma client is gitignored; regenerate before typecheck/test.
+      - name: Generate Prisma client
+        run: pnpm --filter @openmdim/db run db:generate
+
       - name: Typecheck
         run: pnpm run typecheck
 
