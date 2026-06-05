@@ -10,19 +10,18 @@ _Last updated: 2026-06-04 · by: Builder (Claude Code)_
 
 ## NEXT WORK UNIT
 
-**WU-1 — Data model (per Build & QA Spec §5).**
+**WU-1 — Data model (Catalog · Commercial · Org · Entitlement · Audit).**
 
-**BLOCKED — cannot start.** WU-1 defines the Prisma data model, which is the source
-of truth for the schema (CLAUDE.md §6: "do not invent fields"). The two governing
-specs that define WU-1's acceptance criteria and the entity design — **OpenMDIM System
-Design v1.0** and **Build & QA Specification v1.0** — are referenced by CLAUDE.md but
-are **not present in `governance/`** (only `.docx` placeholders were expected). They
-must be added to `governance/` before WU-1 can begin; building a schema without them
-would violate the no-invented-fields rule and the no-build-around-missing-dependency rule.
+UNBLOCKED — the governing specs now exist: `governance/SYSTEM-DESIGN.md` (v1.0, data
+model) and `governance/BUILD-SPEC.md` (§5 WU-1, criteria WU-1.1–1.7 + U.1–U.6),
+authored 2026-06-04 via brainstorm. Core decisions: single-tenant (instance-per-client);
+spend & per-seat allocation; per-seat cost = Subscription.baseFee + Σ selected AddOn.fee;
+each Consumer aligned to one CostCenter.
 
-Action needed from the human: drop the two spec `.docx` (or their content) into
-`governance/`, then confirm the WU-1 title + acceptance criteria so the Builder can
-proceed per the session-start checklist.
+**Pending before build starts:** (1) human review/ratification of SYSTEM-DESIGN.md +
+BUILD-SPEC.md (currently in a docs PR); (2) implementation plan via writing-plans;
+(3) one-line WU-1 confirmation per the session-start checklist. Do not start WU-2 until
+WU-1 is approved.
 
 ---
 
@@ -57,10 +56,9 @@ failures._
   (no Docker Desktop / no reboot). `docker compose up --wait` brings all 3 services healthy.
   Note: a native Windows Postgres already owns `localhost:5432`, so the compose stack uses
   non-default host ports (Postgres 5433, Redis 6380, MinIO 9100/9101) to avoid collisions.
-- **WU-1 BLOCKER — design `.docx` specs absent from `governance/`**: the System Design v1.0
-  and Build & QA Spec v1.0 are referenced by CLAUDE.md but are not on disk. WU-0 didn't need
-  their detail, but WU-1 (the Prisma data model) cannot start without them — the schema is the
-  source of truth and fields may not be invented. Add them to `governance/` to unblock WU-1.
+- **RESOLVED 2026-06-04 — governing specs authored**: System Design v1.0 + Build & QA Spec v1.0
+  now exist as `governance/SYSTEM-DESIGN.md` and `governance/BUILD-SPEC.md` (authored via brainstorm,
+  pending human ratification in a docs PR). WU-1 is no longer blocked.
 
 ---
 
