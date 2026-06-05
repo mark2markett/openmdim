@@ -28,8 +28,11 @@ const ISO_4217 = new Set<string>([
   'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLE', 'SOS', 'SRD', 'SSP', 'STN',
   'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX',
   'USD', 'UYU', 'UZS', 'VED', 'VES', 'VND', 'VUV', 'WST', 'XAF', 'XCD', 'XOF', 'XPF', 'YER', 'ZAR',
-  'ZMW', 'ZWL'
+  'ZMW', 'ZWG', 'ZWL'
 ]);
+// NOTE: hardcoded list is "known good as of authoring"; it will drift against ISO-4217
+// amendments. PROPOSED follow-up: replace with a maintained currency reference. ZWL/BGN
+// kept intentionally (they appear in real historical contracts a spend system records).
 
 export class Money {
   private constructor(

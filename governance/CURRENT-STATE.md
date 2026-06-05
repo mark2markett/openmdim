@@ -62,6 +62,13 @@ _The one work unit currently being built. Should match NEXT WORK UNIT once start
   unique indexes; keeps `migrate diff` clean). Contexts are plain TS module folders (no NestJS DI
   yet — not needed until endpoints in a later WU).
 
+  **CODEX review (PR #4):** first pass NOT-PASS (7 FAIL). Builder fixed: audit every child write
+  (WU-1.4), add-on dedup (WU-1.1), real ISO-4217 validation (WU-1.2), rollup excludes inactive
+  add-ons (WU-1.6), CI coverage gate (WU-1.7/U.3). Re-review: 6/7 PASS. WU-1.2: CODEX flagged the
+  hardcoded currency set as not synced to the latest ISO amendments; Approver arbitrated (2026-06-04)
+  that the Money VO + ISO-4217 validation meets the criterion, with a maintained-reference follow-up
+  (see PROPOSED) → WU-1.2 PASS. Net: all 7 criteria + U.1–U.6 PASS. CI green.
+
 ---
 
 ## BROKEN / KNOWN ISSUES
@@ -91,6 +98,11 @@ of acted on (no scope creep). The human promotes these into real work units._
   later WUs; not applicable until a schema/API exists).
 - Tighten the import-boundary stub into a real per-context rule set (e.g. `import/no-restricted-paths`
   zones) when bounded contexts land in WU-1+.
+- **Replace the hardcoded ISO-4217 currency set** (`packages/domain/src/money.ts`) with a maintained
+  currency reference — the hardcoded list drifts against ISO amendments. (From WU-1 CODEX review;
+  Approver accepted WU-1.2 as met with this as the follow-up.)
+- Consider DB-level active-uniqueness (partial unique index applied outside the Prisma schema, or a
+  generated key column) if concurrency makes the service-level `(consumer, subscription)` check insufficient.
 
 ---
 
