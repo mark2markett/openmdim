@@ -71,5 +71,9 @@ describe('Commercial context', () => {
     const after = await db.prisma.assignment.findUnique({ where: { id: asg.id } });
     expect(after?.isActive).toBe(false);
     expect(after?.endsOn).not.toBeNull();
+    // the cascaded assignment deactivation is itself audited (WU-1.4)
+    expect(
+      await db.prisma.auditEvent.count({ where: { entityType: 'Assignment', action: 'DEACTIVATE' } })
+    ).toBe(1);
   });
 });

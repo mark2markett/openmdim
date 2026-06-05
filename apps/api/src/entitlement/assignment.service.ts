@@ -1,4 +1,4 @@
-import { withAudit, type PrismaClient } from '@openmdim/db';
+import { withAudit, writeAudit, type PrismaClient } from '@openmdim/db';
 import { SYSTEM_ACTOR } from '../common/audit.types';
 // Cross-context reads go through SERVICE interfaces (not repositories) per WU-1.3/U.4.
 import { SubscriptionService } from '../commercial/subscription.service';
@@ -73,8 +73,17 @@ export class AssignmentService {
         const assignment = await tx.assignment.create({
           data: { consumerId, subscriptionId, startsOn, endsOn }
         });
-        for (const addOnId of addOnIds) {
-          await tx.assignmentAddOn.create({ data: { assignmentId: assignment.id, addOnId } });
+        // De-dup add-on ids: enforces active uniqueness of (assignment, addOn).
+        for (const addOnId of [...new Set(addOnIds)]) {
+          const link = await tx.assignmentAddOn.create({
+            data: { assignmentId: assignment.id, addOnId }
+          });
+          await writeAudit(
+            tx,
+            { entityType: 'AssignmentAddOn', action: 'CREATE', actor: SYSTEM_ACTOR },
+            link.id,
+            link
+          );
         }
         return assignment;
       },
@@ -91,10 +100,19 @@ export class AssignmentService {
           where: { id },
           data: { isActive: false, endsOn: new Date() }
         });
-        await tx.assignmentAddOn.updateMany({
-          where: { assignmentId: id, isActive: true },
-          data: { isActive: false }
+        // Deactivate + audit each active add-on link individually (every write audited).
+        const links = await tx.assignmentAddOn.findMany({
+          where: { assignmentId: id, isActive: true }
         });
+        for (const link of links) {
+          await tx.assignmentAddOn.update({ where: { id: link.id }, data: { isActive: false } });
+          await writeAudit(
+            tx,
+            { entityType: 'AssignmentAddOn', action: 'DEACTIVATE', actor: SYSTEM_ACTOR },
+            link.id,
+            { isActive: false }
+          );
+        }
         return assignment;
       },
       (a) => ({ entityId: a.id, changes: { isActive: false } })

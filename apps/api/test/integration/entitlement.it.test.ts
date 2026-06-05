@@ -74,6 +74,21 @@ describe('Entitlement context', () => {
     expect(a.isActive).toBe(true);
     expect(await db.prisma.assignmentAddOn.count({ where: { assignmentId: a.id } })).toBe(1);
     expect(await db.prisma.auditEvent.count({ where: { entityType: 'Assignment', action: 'CREATE' } })).toBe(1);
+    // every write audited: the add-on link gets its own AuditEvent (WU-1.4)
+    expect(
+      await db.prisma.auditEvent.count({ where: { entityType: 'AssignmentAddOn', action: 'CREATE' } })
+    ).toBe(1);
+  });
+
+  it('de-dups add-on ids (active uniqueness of assignment+add-on)', async () => {
+    const { sub, addOn, consumer } = await seed();
+    const a = await assignments.assign({
+      consumerId: consumer.id,
+      subscriptionId: sub.id,
+      startsOn: new Date('2026-06-01'),
+      addOnIds: [addOn.id, addOn.id, addOn.id]
+    });
+    expect(await db.prisma.assignmentAddOn.count({ where: { assignmentId: a.id } })).toBe(1);
   });
 
   it('(a) rejects endsOn before startsOn', async () => {

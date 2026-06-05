@@ -1,4 +1,4 @@
-import { withAudit, type PrismaClient, type BillingPeriod } from '@openmdim/db';
+import { withAudit, writeAudit, type PrismaClient, type BillingPeriod } from '@openmdim/db';
 import { Money, type MoneyInput } from '@openmdim/domain';
 import { SYSTEM_ACTOR } from '../common/audit.types';
 import { SubscriptionRepository } from './subscription.repository';
@@ -57,10 +57,34 @@ export class SubscriptionService {
       { entityType: 'Subscription', action: 'DEACTIVATE', actor: SYSTEM_ACTOR },
       async (tx) => {
         const sub = await tx.subscription.update({ where: { id }, data: { isActive: false } });
-        await tx.assignment.updateMany({
-          where: { subscriptionId: id, isActive: true },
-          data: { isActive: false, endsOn: new Date() }
+        const endedAt = new Date();
+        const assignments = await tx.assignment.findMany({
+          where: { subscriptionId: id, isActive: true }
         });
+        for (const a of assignments) {
+          await tx.assignment.update({
+            where: { id: a.id },
+            data: { isActive: false, endsOn: endedAt }
+          });
+          await writeAudit(
+            tx,
+            { entityType: 'Assignment', action: 'DEACTIVATE', actor: SYSTEM_ACTOR },
+            a.id,
+            { isActive: false, reason: 'subscription deactivated' }
+          );
+          const links = await tx.assignmentAddOn.findMany({
+            where: { assignmentId: a.id, isActive: true }
+          });
+          for (const link of links) {
+            await tx.assignmentAddOn.update({ where: { id: link.id }, data: { isActive: false } });
+            await writeAudit(
+              tx,
+              { entityType: 'AssignmentAddOn', action: 'DEACTIVATE', actor: SYSTEM_ACTOR },
+              link.id,
+              { isActive: false }
+            );
+          }
+        }
         return sub;
       },
       (s) => ({ entityId: s.id, changes: { isActive: false, cascade: 'active assignments deactivated' } })

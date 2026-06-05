@@ -24,15 +24,29 @@ export async function withAudit<T>(
   return prisma.$transaction(async (tx) => {
     const result = await work(tx);
     const { entityId, changes } = describe(result);
-    await tx.auditEvent.create({
-      data: {
-        entityType: meta.entityType,
-        entityId,
-        action: meta.action,
-        actor: meta.actor,
-        changes: changes as object
-      }
-    });
+    await writeAudit(tx, meta, entityId, changes);
     return result;
+  });
+}
+
+/**
+ * Write a single AuditEvent on an existing transaction. Used for multi-write
+ * operations (e.g. creating child rows, cascade deactivations) so that EVERY
+ * write gets its own audit row in the same transaction — not just the parent.
+ */
+export function writeAudit(
+  tx: Tx,
+  meta: AuditMeta,
+  entityId: string,
+  changes: unknown
+): Promise<unknown> {
+  return tx.auditEvent.create({
+    data: {
+      entityType: meta.entityType,
+      entityId,
+      action: meta.action,
+      actor: meta.actor,
+      changes: changes as object
+    }
   });
 }

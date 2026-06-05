@@ -23,7 +23,8 @@ export class CostRollupService {
       where: { consumerId, isActive: true },
       include: {
         subscription: true,
-        addOns: { where: { isActive: true }, include: { addOn: true } }
+        // only active add-on links whose underlying AddOn is also still active
+        addOns: { where: { isActive: true, addOn: { isActive: true } }, include: { addOn: true } }
       }
     });
 

@@ -13,6 +13,9 @@ describe('Money', () => {
   it('rejects bad currency', () => {
     expect(() => Money.of({ amount: 1, currency: 'US', fxRate: 1, fxAsOf: new Date() })).toThrow();
   });
+  it('rejects a well-formed but non-ISO-4217 code', () => {
+    expect(() => Money.of({ amount: 1, currency: 'ZZZ', fxRate: 1, fxAsOf: new Date() })).toThrow();
+  });
   it('rejects fxRate <= 0', () => {
     expect(() => Money.of({ amount: 1, currency: 'EUR', fxRate: 0, fxAsOf: new Date() })).toThrow();
   });

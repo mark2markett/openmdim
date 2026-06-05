@@ -15,6 +15,22 @@ export interface MoneyInput {
   fxAsOf: Date;
 }
 
+/** Active ISO-4217 alphabetic currency codes. */
+const ISO_4217 = new Set<string>([
+  'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT', 'BGN',
+  'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL', 'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF',
+  'CLP', 'CNY', 'COP', 'CRC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP', 'ERN', 'ETB',
+  'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HTG',
+  'HUF', 'IDR', 'ILS', 'INR', 'IQD', 'IRR', 'ISK', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF',
+  'KPW', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MGA',
+  'MKD', 'MMK', 'MNT', 'MOP', 'MRU', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO',
+  'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD',
+  'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLE', 'SOS', 'SRD', 'SSP', 'STN',
+  'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX',
+  'USD', 'UYU', 'UZS', 'VED', 'VES', 'VND', 'VUV', 'WST', 'XAF', 'XCD', 'XOF', 'XPF', 'YER', 'ZAR',
+  'ZMW', 'ZWL'
+]);
+
 export class Money {
   private constructor(
     readonly amount: number,
@@ -25,8 +41,8 @@ export class Money {
 
   static of(input: MoneyInput): Money {
     if (!(input.amount >= 0)) throw new Error(`Money.amount must be >= 0, got ${input.amount}`);
-    if (!/^[A-Z]{3}$/.test(input.currency))
-      throw new Error(`Money.currency must be ISO-4217 (3 upper-case letters), got "${input.currency}"`);
+    if (!ISO_4217.has(input.currency))
+      throw new Error(`Money.currency must be a valid ISO-4217 code, got "${input.currency}"`);
     if (!(input.fxRate > 0)) throw new Error(`Money.fxRate must be > 0, got ${input.fxRate}`);
     if (!(input.fxAsOf instanceof Date) || Number.isNaN(input.fxAsOf.getTime()))
       throw new Error('Money.fxAsOf must be a valid Date');

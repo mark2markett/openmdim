@@ -75,5 +75,9 @@ describe('Cost rollup (WU-1.6)', () => {
     expect(await svc.perConsumer(consumer.id)).toBeCloseTo(120, 4); // 110 + 10
     expect(await svc.perCostCenter(cc.id)).toBeCloseTo(120, 4);
     expect(await svc.provisioning(sub.id)).toEqual({ contracted: 2, assigned: 1, delta: 1 });
+
+    // deactivating the underlying add-on drops it from the rollup (WU-1.6)
+    await addOns.deactivate(addOn.id);
+    expect(await svc.perConsumer(consumer.id)).toBeCloseTo(110, 4);
   });
 });

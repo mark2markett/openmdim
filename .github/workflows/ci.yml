@@ -75,3 +75,7 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      # Enforce changed-file coverage thresholds (U.3) — fails CI if below 80/70.
+      - name: Coverage gate
+        run: pnpm --filter @openmdim/api run test:coverage

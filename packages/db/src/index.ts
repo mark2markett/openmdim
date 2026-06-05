@@ -2,7 +2,7 @@
 // is the source of truth for the data model. Mutations go through services that wrap
 // writes + an AuditEvent in one transaction (see withAudit, added in WU-1 Task 5).
 export * from './client';
-export { withAudit, type AuditMeta } from './audit';
+export { withAudit, writeAudit, type AuditMeta } from './audit';
 
 export const PRISMA_ENV = {
   /** Pooled connection used at runtime. */
