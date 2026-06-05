@@ -13,7 +13,10 @@
     "build": "tsc -p tsconfig.json",
     "test": "echo \"@openmdim/db: no tests yet (WU-1+)\"",
     "db:validate": "prisma validate --schema prisma/schema.prisma",
-    "db:generate": "prisma generate --schema prisma/schema.prisma"
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:reset": "prisma migrate reset --force --schema prisma/schema.prisma"
   },
   "devDependencies": {
     "prisma": "^5.22.0"
